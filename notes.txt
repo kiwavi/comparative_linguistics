@@ -1,0 +1,17 @@
+Tasks:
+
+BACKEND
+1. Create postgres database schema. (tables include users table, Languages table, Language_Families table, Words table, Wordlist table ).
+2. Create fastAPI server.
+3. Connect server with database.
+4. Create endpoints for uploading data.
+5. Create endpoints for fetching data.
+6. 
+
+FRONTEND
+1. Create landing page. Should contain a search bar that will fetch data from the backend and display. Two inputs. First for the english word, second for the language family. Backend filters and returns results.
+2. Add link to landing page that leads to a page showing the available searchable words.
+3. Create a page (List Of Words Page)that contains all available words. The page should also have a search bar. For each word in the list of available words, add a button which when clicked, adds it to the search bar so that user can click enter and search.
+4. Add a search filter to List of Words Page. Someone can search whether a certain word is available to be searched from the long list.
+5. 
+
