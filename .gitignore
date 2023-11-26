@@ -41,3 +41,6 @@ next-env.d.ts
 
 # all log files
 .log
+
+# python virtual env
+backend/venv
