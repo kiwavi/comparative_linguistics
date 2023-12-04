@@ -5,8 +5,8 @@ from sqlalchemy_imageattach.entity import Image, image_attachment
 
 # fields i should add are deleted_at, createdat to every table. They should be null by default because we'll be doing migrations.  
 
-class Words():
-    __tablename__ = 'words'
+class User():
+    __tablename__ = 'users'
 
     id = Column(Integer,primary_key=True,index=True)
     email = Column(String, unique=True, index=True)
@@ -21,6 +21,21 @@ class Words():
     user_lang = relationship("Languages", back_populates="words")
     language_fam = relationship("Language_Families", back_populates="words_fam")
     
+class Words():
+    __tablename__ = 'words'
+    
+    id = Column(Integer,primary_key=True,index=True)
+    english_word = Column(String, index=True)
+    language_word_equivalent = Column(String, index=True)
+    language_id = Column(Integer,ForeignKey("languages.id"),nullable=True)
+    language_fam_id = Column(Integer,ForeignKey("language_families.id"),nullable=True)
+    description = Column(String, index=True, nullable=True)
+    user = Column(Integer,ForeignKey("users.id"),nullable=True)
+
+    language = relationship("Languages", back_populates="words")
+    language_fam = relationship("Language_Families", back_populates="words_fam")
+    
+
 class Languages():
     __tablename__ = 'languages'
 
