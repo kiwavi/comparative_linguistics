@@ -18,7 +18,6 @@ class User():
     # relationships
     user_lang_id = Column(Integer,ForeignKey("languages.id"),nullable=True)
     language_fam_id = Column(Integer,ForeignKey("language_families.id"),nullable=True) # not so necessary though
-
     user_lang = relationship("Languages", back_populates="words")
     language_fam = relationship("Language_Families", back_populates="words_fam")
     words = relationship("Words", back_populates="user")
@@ -35,7 +34,6 @@ class Words():
     user_id = Column(Integer,ForeignKey("users.id"),nullable=True)
     creation_date = Column(DateTime, default=datetime.now(), nullable=True)
     deletion_date = Column(DateTime, nullable=True,)
-
 
     language = relationship("Languages", back_populates="words")
     language_fam = relationship("Language_Families", back_populates="words_fam")
