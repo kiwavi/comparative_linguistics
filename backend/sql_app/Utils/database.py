@@ -2,12 +2,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@127:0:0:1/comparative_linguistics"  # should add db here
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@127.0.0.1/comparative_linguistics"
 
 # sqlalchemy engine
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL
-)
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 # represents actual db session
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
