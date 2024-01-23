@@ -4,9 +4,34 @@ from sqlalchemy.orm import relationship
 from sqlalchemy_imageattach.entity import Image, image_attachment
 from datetime import datetime
 
-# fields i should add are deleted_at, createdat to every table. They should be null by default because we'll be doing migrations.  
+class Language_Families(Base):
+    __tablename__ = 'language_families'
 
-class User():
+    id = Column(Integer,primary_key=True,index=True)
+    name = Column(String, index=True)
+    language_family_description = Column(String, index=True, nullable=True)
+    creation_date = Column(DateTime, default=datetime.now(), nullable=True,)
+    deletion_date = Column(DateTime, nullable=True,)
+    
+    words_fam = relationship("Words", back_populates="language_fam")
+    lang = relationship("Languages", back_populates="language_family")
+
+
+class Languages(Base):
+    __tablename__ = 'languages'
+
+    id = Column(Integer,primary_key=True,index=True)
+    name = Column(String, index=True)
+    language_description = Column(String, index=True, nullable=True)
+    language_family_id = Column(Integer,ForeignKey("language_families.id"),nullable=True)
+    creation_date = Column(DateTime,default=datetime.now(), nullable=True)
+    deletion_date = Column(DateTime,nullable=True,)
+
+    language_family = relationship("Language_Families", back_populates="lang")
+    words = relationship("Words", back_populates="user_lang")
+
+
+class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer,primary_key=True,index=True)
@@ -22,7 +47,7 @@ class User():
     language_fam = relationship("Language_Families", back_populates="words_fam")
     words = relationship("Words", back_populates="user")
     
-class Words():
+class Words(Base):
     __tablename__ = 'words'
     
     id = Column(Integer,primary_key=True,index=True)
@@ -38,33 +63,8 @@ class Words():
     language = relationship("Languages", back_populates="words")
     language_fam = relationship("Language_Families", back_populates="words_fam")
     user = relationship("users", back_populates="words")
-
-class Languages():
-    __tablename__ = 'languages'
-
-    id = Column(Integer,primary_key=True,index=True)
-    name = Column(String, index=True)
-    language_description = Column(String, index=True, nullable=True)
-    language_family_id = Column(Integer,ForeignKey("language_families.id"),nullable=True)
-    creation_date = Column(DateTime,default=datetime.now(), nullable=True)
-    deletion_date = Column(DateTime,nullable=True,)
-
-    language_family = relationship("Language_Families", back_populates="lang")
-    words = relationship("Words", back_populates="user_lang")
     
-class Language_Families():
-    __tablename__ = 'language_families'
-
-    id = Column(Integer,primary_key=True,index=True)
-    name = Column(String, index=True)
-    language_family_description = Column(String, index=True, nullable=True)
-    creation_date = Column(DateTime, default=datetime.now(), nullable=True,)
-    deletion_date = Column(DateTime, nullable=True,)
-    
-    words_fam = relationship("Words", back_populates="language_fam")
-    lang = relationship("Languages", back_populates="language_family")
-    
-class WordList():
+class WordList(Base):
     __tablename__ = 'wordlist'
 
     id = Column(Integer,primary_key=True,index=True)
@@ -77,7 +77,7 @@ class WordList():
 class WordPicture(Base, Image):
     __tablename__ = 'wordpicture'
 
-    wordlist_id = Column(Integer,ForeignKey('user.id'),primary_key=True)
+    wordlist_id = Column(Integer,ForeignKey("wordlist.id"))
     creation_date = Column(DateTime, default=datetime.now(), nullable=True)
     deletion_date = Column(DateTime, nullable=True,)
     
