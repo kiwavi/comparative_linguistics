@@ -28,8 +28,6 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     # creating users
     hashed_password: str
-    # is_active: bool
-    # creation_date: date
 
     class Config:
         orm_mode = True
