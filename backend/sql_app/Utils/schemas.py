@@ -23,12 +23,13 @@ class UserBase(BaseModel):
     # common attributes for reading and creating users
     id: int
     email: str
+    username: str
     
 class UserCreate(UserBase):
     # creating users
     hashed_password: str
-    is_active: bool
-    creation_date: date
+    # is_active: bool
+    # creation_date: date
 
     class Config:
         orm_mode = True
