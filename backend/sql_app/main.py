@@ -8,6 +8,18 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+# @app.post("/register",response_model=schemas.User)
+# def register(user:schemas.UserCreate, db: Session=Depends(get_db)):
+#     db_user = crud.get_user_by_email(get_db(),email=user.email)
+    
