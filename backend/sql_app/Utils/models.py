@@ -12,10 +12,6 @@ class Language_Families(Base):
     language_family_description = Column(String, index=True, nullable=True)
     creation_date = Column(DateTime, default=datetime.now(), nullable=True,)
     deletion_date = Column(DateTime, nullable=True,)
-    
-    # words_fam = relationship("Words", back_populates="language_fam")
-    # lang = relationship("Languages", back_populates="language_family")
-    # users = relationship("Language_Families", back_populates="language_fam") # the users belonging to this language family
 
 class Languages(Base):
     __tablename__ = 'languages'
@@ -26,10 +22,6 @@ class Languages(Base):
     language_family_id = Column(Integer,ForeignKey("language_families.id"),nullable=True)
     creation_date = Column(DateTime,default=datetime.now(), nullable=True)
     deletion_date = Column(DateTime,nullable=True,)
-
-    # language_family = relationship("Language_Families", back_populates="lang")
-    # words = relationship("Words", back_populates="user_lang")
-    # users = relationship("Users", back_populates="user_lang") # the users connected with the language
 
 class User(Base):
     __tablename__ = 'users'
@@ -44,9 +36,6 @@ class User(Base):
     # relationships
     user_lang_id = Column(Integer,ForeignKey("languages.id"),nullable=True)
     language_fam_id = Column(Integer,ForeignKey("language_families.id"),nullable=True) # not so necessary though
-    # user_lang = relationship("Languages", back_populates="users") # the language connected to the user
-    # language_fam = relationship("Language_Families", back_populates="users") # the language family connected to the user
-    # words = relationship("Words", back_populates="user") # the words connected to this user
     
 class Words(Base):
     __tablename__ = 'words'
@@ -61,9 +50,6 @@ class Words(Base):
     creation_date = Column(DateTime, default=datetime.now(), nullable=True)
     deletion_date = Column(DateTime, nullable=True,)
 
-    # language = relationship("Languages", back_populates="words")
-    # language_fam = relationship("Language_Families", back_populates="words_fam")
-    # user = relationship("users", back_populates="words")
     
 class WordList(Base):
     __tablename__ = 'wordlist'
