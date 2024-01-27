@@ -6,7 +6,7 @@ from pydantic import ConfigDict
 
 class WordsBase(BaseModel):
     # common attributes for reading and creating words
-    id:int
+    
     english_word: str
     language_word_equivalent: str
     language_id: int
@@ -21,21 +21,19 @@ class WordsCreate(WordsBase):
     
 class UserBase(BaseModel):
     # common attributes for reading and creating users
-    id: int
     email: str
     username: str
     
 class UserCreate(UserBase):
     # creating users
-    hashed_password: str
+    password: str
 
     class Config:
         orm_mode = True
         
     
 class LanguageBase(BaseModel):
-    # common attributes for reading and creating languages
-    id:int
+    # common attributes for reading and creating languages    
     name: str
     language_description: str
 
@@ -51,8 +49,7 @@ class LanguageCreate(LanguageBase):
 
     
 class LanguageFamilyBase(BaseModel):
-    # common attributes for reading and creating language families
-    id:int
+    # common attributes for reading and creating language families    
     name: str
     language_family_description: str
     creation_date: date
@@ -62,8 +59,7 @@ class LanguageFamilyCreate(LanguageFamilyBase):
     pass
 
 class WordListBase(BaseModel):
-    # common attributes for reading and creating wordlist
-    id:int
+    # common attributes for reading and creating wordlist 
     word: str
     creation_date: str
     # picture:
