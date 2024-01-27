@@ -82,4 +82,4 @@ class WordPicture(Base, Image):
     creation_date = Column(DateTime, default=datetime.now(), nullable=True)
     deletion_date = Column(DateTime, nullable=True,)
     
-    wordlist = relationship('WordList')
+    wordlist = relationship('WordList', back_populates="picture")
