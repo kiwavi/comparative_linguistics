@@ -13,8 +13,8 @@ def create_user(db: Session, user: schemas.UserCreate):
     # util for creating a user. email, username, password
     salt = bcrypt.gensalt(rounds=12)
     password_bytes = user.password.encode('utf-8') 
-    fake_hashed_password = bcrypt.hashpw(password_bytes,salt) # postpone due to some error
-    db_user = models.User(email=user.email, hashed_password=fake_hashed_password, username=user.username)
+    hashed_password = bcrypt.hashpw(password_bytes,salt) # postpone due to some error
+    db_user = models.User(email=user.email, hashed_password=hashed_password, username=user.username)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
