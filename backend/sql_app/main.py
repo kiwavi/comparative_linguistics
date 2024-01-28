@@ -60,3 +60,11 @@ def addwordlist(wordlist: schemas.WordListBase,db:Session=Depends(get_db)):
         raise HTTPException(status_code=400,detail='The word entered already exists')
     new_wordlist = crud.create_wordlist(db,wordlist)
     return new_wordlist
+
+@app.post("/new/wordpic",response_model=schemas.WordPicOut)
+def addwordpic(wordpic:schemas.WordPictureBase,db:Session=Depends(get_db)):
+    check_wordpic = crud.getwordpic(db,wordpic.wordlist_id)
+    if check_wordpic:
+        raise HTTPException(status_code=400,detail='The word already has a picture')
+    newwordpic = crud.create_wordpic(db,wordpic)
+    return newwordpic

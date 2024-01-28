@@ -68,3 +68,10 @@ class WordListBase(BaseModel):
 class WordListOut(WordListBase):
     # creating wordlist
     id: int
+
+
+class WordPictureBase(BaseModel):
+    wordlist_id: int
+
+class WordPicOut(WordPictureBase):
+    id: int

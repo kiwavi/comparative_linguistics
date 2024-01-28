@@ -77,7 +77,7 @@ def create_word(db:Session,word:schemas.WordsCreate):
     return new_word
 
 def get_wordlist(db:Session,wordlist:str):
-    return db.query(models.WordList.word).filter(models.WordList.word == wordlist).first()
+    return db.query(models.WordList).filter(models.WordList.word == wordlist).first()
 
 def create_wordlist(db:Session,wordlist:schemas.WordListOut):
     new_wordlist = models.WordList(word=wordlist.word)
@@ -85,3 +85,13 @@ def create_wordlist(db:Session,wordlist:schemas.WordListOut):
     db.commit()
     db.refresh(new_wordlist)
     return new_wordlist
+
+def getwordpic(db:Session,wordpicid:id):
+    return db.query(models.WordPicture).filter(models.WordPicture.wordlist_id == wordpicid).first()
+
+def create_wordpic(db:Session,wordpic:schemas.WordPictureBase):
+    new_pic = models.WordPicture(wordlist_id=wordpic.wordlist_id)
+    db.add(new_pic)
+    db.commit()
+    db.refresh(new_pic)
+    return new_pic
