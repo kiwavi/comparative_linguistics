@@ -5,8 +5,7 @@ from datetime import datetime,date
 from pydantic import ConfigDict
 
 class WordsBase(BaseModel):
-    # common attributes for reading and creating words
-    
+    # common attributes for reading and creating words    
     english_word: str
     language_word_equivalent: str
     language_id: int
@@ -14,10 +13,7 @@ class WordsBase(BaseModel):
 class WordsCreate(WordsBase):
     # creating words
     description: str
-    language_fam_id: str
     user_id: int
-    creation_date: datetime
-    deletion_date: datetime
     
 class UserBase(BaseModel):
     # common attributes for reading and creating users

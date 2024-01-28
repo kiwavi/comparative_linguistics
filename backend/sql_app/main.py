@@ -44,3 +44,11 @@ def addlanguage(language:schemas.LanguageCreate,db:Session=Depends(get_db)):
         raise HTTPException(status_code=400,detail='Language exists')
     new_language = crud.create_language(db,language)
     return new_language
+
+@app.post("/new/word",response_model=schemas.WordsCreate)
+def addword(word:schemas.WordsCreate,db:Session=Depends(get_db)):
+    word_check = crud.get_word(db,word.english_word,word.language_id)
+    if word_check:
+        raise HTTPException(status_code=400,detail='The word entered already exists')
+    new_word = crud.create_word(db,word)
+    return new_word

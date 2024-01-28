@@ -59,3 +59,19 @@ def create_language(db:Session,language:schemas.LanguageCreate):
     db.commit()
     db.refresh(language_create)
     return language_create
+
+def get_word(db:Session,name:str,language_id:int):
+    # checks if there exists a word for that language 
+    return db.query(models.Words).filter(models.Words.english_word == name
+                                         and models.Words.language_id == language_id 
+                                         ).first()
+
+def create_word(db:Session,word:schemas.WordsCreate):
+    new_word = models.Words(english_word=word.english_word,language_word_equivalent=
+                            word.language_word_equivalent,language_id=word.language_id,
+                            description=word.description,user_id=word.user_id
+                            )
+    db.add(new_word)
+    db.commit()
+    db.refresh(new_word)
+    return new_word
