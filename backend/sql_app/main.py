@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from Utils import crud, models, schemas
 from Utils.database import SessionLocal, engine
+import json
 
 models.Base.metadata.create_all(bind=engine)
 
