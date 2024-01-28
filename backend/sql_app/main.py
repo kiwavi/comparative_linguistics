@@ -37,3 +37,10 @@ def addlanguagefamily(family:schemas.LanguageFamilyCreate,db:Session=Depends(get
     new_language_family = crud.create_language_family(db,family)
     return new_language_family
 
+@app.post("/new/language",response_model=schemas.LanguagesOut)
+def addlanguage(language:schemas.LanguageCreate,db:Session=Depends(get_db)):
+    language_check = crud.get_language(db,language.name)
+    if language_check:
+        raise HTTPException(status_code=400,detail='Language exists')
+    new_language = crud.create_language(db,language)
+    return new_language

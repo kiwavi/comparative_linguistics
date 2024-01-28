@@ -47,3 +47,15 @@ def create_language_family(db:Session, family: schemas.LanguageFamilyCreate):
 def get_language_family(db:Session, name:str):
     return db.query(models.Language_Families).filter(models.Language_Families.name
                                                      == name).first()
+
+def get_language(db:Session, name:str):
+    return db.query(models.Languages).filter(models.Languages.name == name).first()
+
+def create_language(db:Session,language:schemas.LanguageCreate):
+    language_create = models.Languages(name=language.name,language_description=
+                                       language.language_description,
+                                       language_family_id=language.language_family_id)
+    db.add(language_create)
+    db.commit()
+    db.refresh(language_create)
+    return language_create

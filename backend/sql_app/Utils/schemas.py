@@ -44,12 +44,12 @@ class LanguageBase(BaseModel):
 class LanguageCreate(LanguageBase):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     # creating languages
-    creation_date: datetime
-    language_family_id: id
+    name: str
+    language_description: str    
+    language_family_id: int
 
-    # class Config:
-    #     orm_mode = True
-
+class LanguagesOut(LanguageCreate):
+    id: int
     
 class LanguageFamilyBase(BaseModel):
     # common attributes for reading and creating language families    
