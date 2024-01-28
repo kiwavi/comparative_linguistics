@@ -52,3 +52,11 @@ def addword(word:schemas.WordsCreate,db:Session=Depends(get_db)):
         raise HTTPException(status_code=400,detail='The word entered already exists')
     new_word = crud.create_word(db,word)
     return new_word
+
+@app.post("/new/wordlist",response_model=schemas.WordListOut)
+def addwordlist(wordlist: schemas.WordListBase,db:Session=Depends(get_db)):
+    wordlist_check = crud.get_wordlist(db,wordlist.word)
+    if wordlist_check:
+        raise HTTPException(status_code=400,detail='The word entered already exists')
+    new_wordlist = crud.create_wordlist(db,wordlist)
+    return new_wordlist

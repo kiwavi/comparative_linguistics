@@ -64,10 +64,7 @@ class LanguageFamilyOut(LanguageFamilyBase):
 class WordListBase(BaseModel):
     # common attributes for reading and creating wordlist 
     word: str
-    creation_date: datetime
-    # picture:
 
-class WordListCreate(WordListBase):
+class WordListOut(WordListBase):
     # creating wordlist
-    pass
-    
+    id: int

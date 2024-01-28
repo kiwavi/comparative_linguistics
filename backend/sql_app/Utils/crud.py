@@ -75,3 +75,13 @@ def create_word(db:Session,word:schemas.WordsCreate):
     db.commit()
     db.refresh(new_word)
     return new_word
+
+def get_wordlist(db:Session,wordlist:str):
+    return db.query(models.WordList.word).filter(models.WordList.word == wordlist).first()
+
+def create_wordlist(db:Session,wordlist:schemas.WordListOut):
+    new_wordlist = models.WordList(word=wordlist.word)
+    db.add(new_wordlist)
+    db.commit()
+    db.refresh(new_wordlist)
+    return new_wordlist
