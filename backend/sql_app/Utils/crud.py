@@ -24,4 +24,5 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 
 def get_user_by_email(db: Session, email: str):
+    # util for fetching user via email
     return db.query(models.User).filter(models.User.email == email).first()
