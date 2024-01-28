@@ -20,7 +20,8 @@ def get_db():
 async def root():
     return {"message": "Hello World"}
 
-@app.post("/register",response_model=schemas.UserCreate)
+@app.post("/register",response_model=schemas.UserOut)
 def register(user:schemas.UserCreate, db: Session=Depends(get_db)):
     # db_user = crud.get_user_by_email(get_db(),email=user.email)
     db_user = crud.create_user(db,user);
+    return db_user

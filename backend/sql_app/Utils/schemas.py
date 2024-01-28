@@ -1,7 +1,7 @@
 # contains pydantic models (data shape)
 
 from pydantic import BaseModel
-from datetime import date
+from datetime import datetime,date
 from pydantic import ConfigDict
 
 class WordsBase(BaseModel):
@@ -16,8 +16,8 @@ class WordsCreate(WordsBase):
     description: str
     language_fam_id: str
     user_id: int
-    creation_date: date
-    deletion_date: date
+    creation_date: datetime
+    deletion_date: datetime
     
 class UserBase(BaseModel):
     # common attributes for reading and creating users
@@ -31,7 +31,10 @@ class UserCreate(UserBase):
     class Config:
         orm_mode = True
         
-    
+class UserOut(UserBase):
+    id: int
+    creation_date: datetime
+
 class LanguageBase(BaseModel):
     # common attributes for reading and creating languages    
     name: str
@@ -41,7 +44,7 @@ class LanguageBase(BaseModel):
 class LanguageCreate(LanguageBase):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     # creating languages
-    creation_date: date
+    creation_date: datetime
     language_family_id: id
 
     # class Config:
@@ -52,7 +55,7 @@ class LanguageFamilyBase(BaseModel):
     # common attributes for reading and creating language families    
     name: str
     language_family_description: str
-    creation_date: date
+    creation_date: datetime
 
 class LanguageFamilyCreate(LanguageFamilyBase):
     # create language families
@@ -61,7 +64,7 @@ class LanguageFamilyCreate(LanguageFamilyBase):
 class WordListBase(BaseModel):
     # common attributes for reading and creating wordlist 
     word: str
-    creation_date: str
+    creation_date: datetime
     # picture:
 
 class WordListCreate(WordListBase):
