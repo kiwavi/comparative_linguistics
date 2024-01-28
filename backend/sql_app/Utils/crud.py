@@ -33,3 +33,17 @@ def create_user(db: Session, user: schemas.UserCreate):
 def get_user_by_email(db: Session, email: str):
     # util for fetching user via email
     return db.query(models.User).filter(models.User.email == email).first()
+
+
+def create_language_family(db:Session, family: schemas.LanguageFamilyCreate):
+    language_family = models.Language_Families(name=family.name,language_family_description
+                                               = family.language_family_description
+                                               )
+    db.add(language_family)
+    db.commit()
+    db.refresh(language_family)
+    return language_family
+
+def get_language_family(db:Session, name:str):
+    return db.query(models.Language_Families).filter(models.Language_Families.name
+                                                     == name).first()

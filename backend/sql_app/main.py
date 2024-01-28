@@ -28,3 +28,12 @@ def register(user:schemas.UserCreate, db: Session=Depends(get_db)):
         raise HTTPException(status_code=400,detail='Email already exists')
     db_user = crud.create_user(db,user);
     return db_user
+
+@app.post("/new/language-family",response_model=schemas.LanguageFamilyOut)
+def addlanguagefamily(family:schemas.LanguageFamilyCreate,db:Session=Depends(get_db)):
+    language_family_check = crud.get_language_family(db, family.name)
+    if language_family_check:
+        raise HTTPException(status_code=400,detail='Language family exists')
+    new_language_family = crud.create_language_family(db,family)
+    return new_language_family
+

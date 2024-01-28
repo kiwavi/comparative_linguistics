@@ -55,11 +55,15 @@ class LanguageFamilyBase(BaseModel):
     # common attributes for reading and creating language families    
     name: str
     language_family_description: str
-    creation_date: datetime
+    # creation_date: datetime
 
 class LanguageFamilyCreate(LanguageFamilyBase):
     # create language families
     pass
+
+class LanguageFamilyOut(LanguageFamilyBase):
+    id: int
+    creation_date: datetime
 
 class WordListBase(BaseModel):
     # common attributes for reading and creating wordlist 
