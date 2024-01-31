@@ -1,8 +1,11 @@
 # contains pydantic models (data shape)
 
-from pydantic import BaseModel
+from pydantic import BaseModel, FilePath
 from datetime import datetime,date
 from pydantic import ConfigDict
+from pathlib import Path
+from typing import Optional, Annotated
+from fastapi import File
 
 class WordsBase(BaseModel):
     # common attributes for reading and creating words    
@@ -64,11 +67,11 @@ class LanguageFamilyOut(LanguageFamilyBase):
 class WordListBase(BaseModel):
     # common attributes for reading and creating wordlist 
     word: str
+    picture: Optional[Annotated[bytes, File()]] = None
 
 class WordListOut(WordListBase):
     # creating wordlist
     id: int
-
 
 class WordPictureBase(BaseModel):
     wordlist_id: int

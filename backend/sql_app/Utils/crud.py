@@ -80,7 +80,8 @@ def get_wordlist(db:Session,wordlist:str):
     return db.query(models.WordList).filter(models.WordList.word == wordlist).first()
 
 def create_wordlist(db:Session,wordlist:schemas.WordListOut):
-    new_wordlist = models.WordList(word=wordlist.word)
+    # check if theres a picture and save it
+    new_wordlist = models.WordList(word=wordlist.word,picture=wordlist.picture)
     db.add(new_wordlist)
     db.commit()
     db.refresh(new_wordlist)
