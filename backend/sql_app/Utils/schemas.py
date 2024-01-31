@@ -67,7 +67,7 @@ class LanguageFamilyOut(LanguageFamilyBase):
 class WordListBase(BaseModel):
     # common attributes for reading and creating wordlist 
     word: str
-    picture: Optional[Annotated[bytes, File()]] = None
+    # picture: Optional[Annotated[bytes, File()]] = None
 
 class WordListOut(WordListBase):
     # creating wordlist

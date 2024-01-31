@@ -59,12 +59,12 @@ class WordList(Base):
     creation_date = Column(DateTime, nullable=True)
     deletion_date = Column(DateTime, nullable=True)
 
-    picture = image_attachment('WordPicture')
+    picture = image_attachment('WordPicture',lazy='select')
 
 class WordPicture(Base, Image):
     __tablename__ = 'wordpicture'
 
-    wordlist_id = Column(Integer,ForeignKey("wordlist.id"))
+    wordlist_id = Column(Integer,ForeignKey("wordlist.id"),primary_key=True)
     creation_date = Column(DateTime, default=datetime.now(), nullable=True)
     deletion_date = Column(DateTime, nullable=True,)
     
