@@ -90,5 +90,6 @@ async def create_wordlist_pic(file: UploadFile,request: Request,word_id:int,db:S
         decoded_blob = base64.b64encode(jpeg_bin)
         with store_context(store):
             user.picture.from_blob(jpeg_bin)
+            db.commit()
 
     return {"filename": file.filename}
