@@ -85,21 +85,12 @@ def wordpic(wordpic:schemas.WordPictureBase,db:Session=Depends(get_db)):
 async def create_wordlist_pic(file: UploadFile,request: Request,word_id:int,db:Session=Depends(get_db)):
     wordlist_check = crud.getwordid(db,word_id)
     orig_file = file.file
-    
-    if wordlist_check:
+
+    with Image(file=orig_file) as img:
         user = session.query(models.WordList).get(word_id)
-        print(user.picture)
-        
-        with Image(file=orig_file) as img:
-            # print('format =', img.format)
-            # print('size =', img.size)
-            # print(img.format)
-            # print(type(orig_file))
-            jpeg_bin = img.make_blob() # convert to binary string
-            # print(type(jpeg_bin))
-            decoded_blob = base64.b64encode(jpeg_bin)
-            with store_context(store):
-                user.picture.from_blob(jpeg_bin)
-                db.commit()
-                # db_item.picture.from_file(orig_file)
-        return {"filename": file.filename}
+        jpeg_bin = img.make_blob() # convert to binary string
+        decoded_blob = base64.b64encode(jpeg_bin)
+        with store_context(store):
+            user.picture.from_blob(jpeg_bin)
+
+    return {"filename": file.filename}
