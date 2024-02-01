@@ -84,7 +84,23 @@ def wordpic(wordpic:schemas.WordPictureBase,db:Session=Depends(get_db)):
 async def create_wordlist_pic(file: UploadFile,request: Request,word_id:int,db:Session=Depends(get_db)):
     wordlist_check = crud.getwordid(db,word_id)
     orig_file = file.file
+    if not wordlist_check:    
+        with Image(file=orig_file) as img:
+            user = db.query(models.WordList).get(word_id)
+            jpeg_bin = img.make_blob() # convert to binary string
+            decoded_blob = base64.b64encode(jpeg_bin)
+            with store_context(store):
+                user.picture.from_blob(jpeg_bin)
+                db.commit()
+                db.refresh(user)
+                return {"filename": user.picture.locate()}
+    else:
+        raise HTTPException(status_code=400,detail='The word already has a picture')
 
+@app.put("/changepic/{word_id}")
+async def create_wordlist_pic(file: UploadFile,request: Request,word_id:int,db:Session=Depends(get_db)):
+    wordlist_check = crud.getwordid(db,word_id)
+    orig_file = file.file
     with Image(file=orig_file) as img:
         user = db.query(models.WordList).get(word_id)
         jpeg_bin = img.make_blob() # convert to binary string
