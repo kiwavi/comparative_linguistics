@@ -18,8 +18,6 @@ store = FileSystemStore(path='./Utils/images',base_url='http://127.0.0.1/images'
 
 app = FastAPI()
 
-session = SessionLocal()
-
 def get_db():
     db = SessionLocal()
     try:
@@ -87,7 +85,7 @@ async def create_wordlist_pic(file: UploadFile,request: Request,word_id:int,db:S
     orig_file = file.file
 
     with Image(file=orig_file) as img:
-        user = session.query(models.WordList).get(word_id)
+        user = db.query(models.WordList).get(word_id)
         jpeg_bin = img.make_blob() # convert to binary string
         decoded_blob = base64.b64encode(jpeg_bin)
         with store_context(store):
