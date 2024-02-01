@@ -7,10 +7,18 @@ import json
 from fastapi_storages import FileSystemStorage
 from fastapi_storages.integrations.sqlalchemy import FileType
 from typing import Optional, Union
+from wand.image import Image
+import base64
+from sqlalchemy_imageattach.context import store_context
+from sqlalchemy_imageattach.stores.fs import FileSystemStore
 
 models.Base.metadata.create_all(bind=engine)
 
+store = FileSystemStore(path='./Utils/images',base_url='http://127.0.0.1/images')
+
 app = FastAPI()
+
+session = SessionLocal()
 
 def get_db():
     db = SessionLocal()
@@ -75,10 +83,23 @@ def wordpic(wordpic:schemas.WordPictureBase,db:Session=Depends(get_db)):
 
 @app.post("/uploadfile/{word_id}")
 async def create_wordlist_pic(file: UploadFile,request: Request,word_id:int,db:Session=Depends(get_db)):
-    uploadfile_byte = await file.read()
     wordlist_check = crud.getwordid(db,word_id)
+    orig_file = file.file
+    
     if wordlist_check:
-        db_item = db.query(models.WordList).filter(models.WordList.id == word_id).first()
-        db_item.picture = uploadfile_byte
-        db.commit()
-    return {"filename": file.filename}
+        user = session.query(models.WordList).get(word_id)
+        print(user.picture)
+        
+        with Image(file=orig_file) as img:
+            # print('format =', img.format)
+            # print('size =', img.size)
+            # print(img.format)
+            # print(type(orig_file))
+            jpeg_bin = img.make_blob() # convert to binary string
+            # print(type(jpeg_bin))
+            decoded_blob = base64.b64encode(jpeg_bin)
+            with store_context(store):
+                user.picture.from_blob(jpeg_bin)
+                db.commit()
+                # db_item.picture.from_file(orig_file)
+        return {"filename": file.filename}

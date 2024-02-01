@@ -59,7 +59,7 @@ class WordList(Base):
     creation_date = Column(DateTime, nullable=True)
     deletion_date = Column(DateTime, nullable=True)
 
-    picture = image_attachment('WordPicture',lazy='select')
+    picture = image_attachment('WordPicture',lazy='select',uselist=False)
 
 class WordPicture(Base, Image):
     __tablename__ = 'wordpicture'
