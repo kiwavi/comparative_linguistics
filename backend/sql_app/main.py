@@ -1,11 +1,21 @@
-from fastapi import Depends, FastAPI, HTTPException, File, UploadFile
+from fastapi import Depends, FastAPI, HTTPException, File, UploadFile, Request
 from sqlalchemy.orm import Session
 
 from Utils import crud, models, schemas
 from Utils.database import SessionLocal, engine
 import json
+from fastapi_storages import FileSystemStorage
+from fastapi_storages.integrations.sqlalchemy import FileType
+from typing import Optional, Union
+from wand.image import Image
+import base64
+from sqlalchemy_imageattach.context import store_context
+from sqlalchemy_imageattach.stores.fs import FileSystemStore
+import os
 
 models.Base.metadata.create_all(bind=engine)
+
+store = FileSystemStore(path='./Utils/images',base_url=os.getcwd() + '/Utils/images')
 
 app = FastAPI()
 
@@ -62,9 +72,41 @@ def addwordlist(wordlist: schemas.WordListBase,db:Session=Depends(get_db)):
     return new_wordlist
 
 @app.post("/new/wordpic",response_model=schemas.WordPicOut)
-def addwordpic(wordpic:schemas.WordPictureBase,db:Session=Depends(get_db)):
+def wordpic(wordpic:schemas.WordPictureBase,db:Session=Depends(get_db)):
     check_wordpic = crud.getwordpic(db,wordpic.wordlist_id)
     if check_wordpic:
         raise HTTPException(status_code=400,detail='The word already has a picture')
     newwordpic = crud.create_wordpic(db,wordpic)
     return newwordpic
+
+
+@app.post("/uploadfile/{word_id}")
+async def create_wordlist_pic(file: UploadFile,request: Request,word_id:int,db:Session=Depends(get_db)):
+    wordlist_check = crud.getwordid(db,word_id)
+    orig_file = file.file
+    if not wordlist_check:    
+        with Image(file=orig_file) as img:
+            user = db.query(models.WordList).get(word_id)
+            jpeg_bin = img.make_blob() # convert to binary string
+            decoded_blob = base64.b64encode(jpeg_bin)
+            with store_context(store):
+                user.picture.from_blob(jpeg_bin)
+                db.commit()
+                db.refresh(user)
+                return {"filename": user.picture.locate()}
+    else:
+        raise HTTPException(status_code=400,detail='The word already has a picture')
+
+@app.put("/changepic/{word_id}")
+async def create_wordlist_pic(file: UploadFile,request: Request,word_id:int,db:Session=Depends(get_db)):
+    wordlist_check = crud.getwordid(db,word_id)
+    orig_file = file.file
+    with Image(file=orig_file) as img:
+        user = db.query(models.WordList).get(word_id)
+        jpeg_bin = img.make_blob() # convert to binary string
+        decoded_blob = base64.b64encode(jpeg_bin)
+        with store_context(store):
+            user.picture.from_blob(jpeg_bin)
+            db.commit()
+            db.refresh(user)
+            return {"filename": user.picture.locate()}
