@@ -31,7 +31,7 @@ class User(Base):
     username = Column(String)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-    is_superuser = Column(Boolean, default=False)
+    # is_superuser = Column(Boolean, default=False)
     creation_date = Column(DateTime,default=datetime.now(),nullable=True)
     deletion_date = Column(DateTime, nullable=True)
     # relationships

@@ -16,7 +16,7 @@ models.Base.metadata.create_all(bind=engine)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 SECRET_KEY = "812d5458ae18565ac79bd58fe2903e1fc85171b1e36f78e74e24673a474dd9f5"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
 
 app = FastAPI()
 
@@ -31,9 +31,6 @@ def get_db():
     finally:
         db.close()
 
-def verify_password(plain_text:str, hash:str):
-    return bcrypt.checkpw(plain_text,hash)
-
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -41,6 +38,7 @@ async def root():
 @app.post("/register",response_model=schemas.UserOut)
 def register(user:schemas.UserCreate, db: Session=Depends(get_db)):
     # db_user = crud.get_user_by_email(get_db(),email=user.email)
+    print(type(user.password))
     db_user_check = crud.get_user_by_email(db, user.email)
     if db_user_check:
         raise HTTPException(status_code=400,detail='Email already exists')
@@ -97,10 +95,9 @@ def addwordpic(wordpic:schemas.WordPictureBase,db:Session=Depends(get_db)):
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db:Session=Depends(get_db)) -> Token:
     # the username should be used as our email for now
     user = crud.get_user_by_email(db, form_data.username)
-    print(type(user.hashed_password))
     if not user:
         raise HTTPException(status_code=400,detail='There is no such user')
-    status = verify_password(form_data.password,user.hashed_password)
+    status = crud.verify_password(form_data.password,user.hashed_password.encode('utf-8'))
     if not status:
         raise HTTPException(status_code=400,detail='Incorrect credentials')
     if status:
