@@ -61,4 +61,4 @@ class WordListBase(BaseModel):
 class WordListCreate(WordListBase):
     # creating wordlist
     pass
-    
+
