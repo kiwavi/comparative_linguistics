@@ -6,16 +6,19 @@ from Utils.database import SessionLocal, engine
 import json
 from fastapi_storages import FileSystemStorage
 from fastapi_storages.integrations.sqlalchemy import FileType
-from typing import Optional, Union
+from typing import Optional, Union, Annotated
 from wand.image import Image
 import base64
 from sqlalchemy_imageattach.context import store_context
 from sqlalchemy_imageattach.stores.fs import FileSystemStore
 import os
+from pydantic import BaseModel
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 models.Base.metadata.create_all(bind=engine)
 
 store = FileSystemStore(path='./Utils/images',base_url=os.getcwd() + '/Utils/images')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 app = FastAPI()
 
@@ -119,3 +122,17 @@ async def create_wordlist_pic(file: UploadFile,request: Request,word_id:int,db:S
             db.commit()
             db.refresh(user)
             return {"filename": user.picture.locate()}
+
+@app.post("/login")
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db:Session=Depends(get_db)) -> Token:
+    # the username should be used as our email for now
+    user = crud.get_user_by_email(db, form_data.username)
+    if not user:
+        raise HTTPException(status_code=400,detail='There is no such user')
+    status = crud.verify_password(form_data.password,user.hashed_password.encode('utf-8'))
+    if not status:
+        raise HTTPException(status_code=400,detail='Incorrect credentials')
+    if status:
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = crud.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
+        return Token(access_token=access_token, token_type="bearer")
