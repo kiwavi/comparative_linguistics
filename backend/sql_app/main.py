@@ -53,8 +53,7 @@ def addlanguagefamily(token: Annotated[str, Depends(oauth2_scheme)],family:schem
     if language_family_check:
         raise HTTPException(status_code=400,detail='Language family exists')
     new_language_family = crud.create_language_family(db,family)
-    # return new_language_family
-    return {"token": token}
+    return new_language_family
 
 @app.post("/new/language",response_model=schemas.LanguagesOut)
 def addlanguage(language:schemas.LanguageCreate,db:Session=Depends(get_db)):
