@@ -1,23 +1,21 @@
-from fastapi import Depends, FastAPI, HTTPException, File, UploadFile
+from fastapi import Depends, FastAPI, HTTPException, File, UploadFile, Request
 from sqlalchemy.orm import Session
 
 from Utils import crud, models, schemas
 from Utils.database import SessionLocal, engine
 import json
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from typing import Annotated, Union
-from fastapi.param_functions import Form
-from typing_extensions import Doc
-from pydantic import BaseModel
-import bcrypt
-from datetime import timedelta
+from fastapi_storages import FileSystemStorage
+from fastapi_storages.integrations.sqlalchemy import FileType
+from typing import Optional, Union
+from wand.image import Image
+import base64
+from sqlalchemy_imageattach.context import store_context
+from sqlalchemy_imageattach.stores.fs import FileSystemStore
+import os
 
 models.Base.metadata.create_all(bind=engine)
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-SECRET_KEY = "812d5458ae18565ac79bd58fe2903e1fc85171b1e36f78e74e24673a474dd9f5"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
+store = FileSystemStore(path='./Utils/images',base_url=os.getcwd() + '/Utils/images')
 
 app = FastAPI()
 
@@ -83,24 +81,41 @@ def addwordlist(token: Annotated[str, Depends(oauth2_scheme)],wordlist: schemas.
     return new_wordlist
 
 @app.post("/new/wordpic",response_model=schemas.WordPicOut)
-def addwordpic(token: Annotated[str, Depends(oauth2_scheme)],wordpic:schemas.WordPictureBase,db:Session=Depends(get_db)):
-    # needs protection
+def wordpic(wordpic:schemas.WordPictureBase,db:Session=Depends(get_db)):
     check_wordpic = crud.getwordpic(db,wordpic.wordlist_id)
     if check_wordpic:
         raise HTTPException(status_code=400,detail='The word already has a picture')
     newwordpic = crud.create_wordpic(db,wordpic)
     return newwordpic
 
-@app.post("/login")
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db:Session=Depends(get_db)) -> Token:
-    # the username should be used as our email for now
-    user = crud.get_user_by_email(db, form_data.username)
-    if not user:
-        raise HTTPException(status_code=400,detail='There is no such user')
-    status = crud.verify_password(form_data.password,user.hashed_password.encode('utf-8'))
-    if not status:
-        raise HTTPException(status_code=400,detail='Incorrect credentials')
-    if status:
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = crud.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
-        return Token(access_token=access_token, token_type="bearer")
+
+@app.post("/uploadfile/{word_id}")
+async def create_wordlist_pic(file: UploadFile,request: Request,word_id:int,db:Session=Depends(get_db)):
+    wordlist_check = crud.getwordid(db,word_id)
+    orig_file = file.file
+    if not wordlist_check:    
+        with Image(file=orig_file) as img:
+            user = db.query(models.WordList).get(word_id)
+            jpeg_bin = img.make_blob() # convert to binary string
+            decoded_blob = base64.b64encode(jpeg_bin)
+            with store_context(store):
+                user.picture.from_blob(jpeg_bin)
+                db.commit()
+                db.refresh(user)
+                return {"filename": user.picture.locate()}
+    else:
+        raise HTTPException(status_code=400,detail='The word already has a picture')
+
+@app.put("/changepic/{word_id}")
+async def create_wordlist_pic(file: UploadFile,request: Request,word_id:int,db:Session=Depends(get_db)):
+    wordlist_check = crud.getwordid(db,word_id)
+    orig_file = file.file
+    with Image(file=orig_file) as img:
+        user = db.query(models.WordList).get(word_id)
+        jpeg_bin = img.make_blob() # convert to binary string
+        decoded_blob = base64.b64encode(jpeg_bin)
+        with store_context(store):
+            user.picture.from_blob(jpeg_bin)
+            db.commit()
+            db.refresh(user)
+            return {"filename": user.picture.locate()}
