@@ -10,6 +10,7 @@ from fastapi.param_functions import Form
 from typing_extensions import Doc
 from pydantic import BaseModel
 import bcrypt
+from datetime import timedelta
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -102,7 +103,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db:Se
         raise HTTPException(status_code=400,detail='Incorrect credentials')
     if status:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
+        access_token = crud.create_access_token(
             data={"sub": user.username}, expires_delta=access_token_expires
         )
         return Token(access_token=access_token, token_type="bearer")

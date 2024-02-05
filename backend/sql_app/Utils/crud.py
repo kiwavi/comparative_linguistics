@@ -8,8 +8,9 @@ from email_validator import validate_email, EmailNotValidError
 from . import models, schemas
 from fastapi.security import OAuth2PasswordBearer
 from typing import Union, Annotated
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 from fastapi import Depends
+from jose import JWTError, jwt
 
 SECRET_KEY = "812d5458ae18565ac79bd58fe2903e1fc85171b1e36f78e74e24673a474dd9f5"
 ALGORITHM = "HS256"
