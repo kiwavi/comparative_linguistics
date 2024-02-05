@@ -14,11 +14,13 @@ from sqlalchemy_imageattach.stores.fs import FileSystemStore
 import os
 from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from datetime import datetime, timedelta
 
 models.Base.metadata.create_all(bind=engine)
 
 store = FileSystemStore(path='./Utils/images',base_url=os.getcwd() + '/Utils/images')
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
 
 app = FastAPI()
 
