@@ -11,9 +11,11 @@ from typing import Union, Annotated
 from datetime import timedelta, datetime, timezone
 from fastapi import Depends
 from jose import JWTError, jwt
+from decouple import config
 
-SECRET_KEY = "812d5458ae18565ac79bd58fe2903e1fc85171b1e36f78e74e24673a474dd9f5"
-ALGORITHM = "HS256"
+
+SECRET_KEY = config('SECRET_KEY')
+ALGORITHM = config('ALGORITHM')
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
