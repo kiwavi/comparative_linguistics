@@ -56,7 +56,7 @@ def addlanguagefamily(token: Annotated[str, Depends(oauth2_scheme)],family:schem
     return new_language_family
 
 @app.post("/new/language",response_model=schemas.LanguagesOut)
-def addlanguage(language:schemas.LanguageCreate,db:Session=Depends(get_db)):
+def addlanguage(token: Annotated[str, Depends(oauth2_scheme)],language:schemas.LanguageCreate,db:Session=Depends(get_db)):
     # needs protection. Superuser only
     language_check = crud.get_language(db,language.name)
     if language_check:
@@ -65,7 +65,7 @@ def addlanguage(language:schemas.LanguageCreate,db:Session=Depends(get_db)):
     return new_language
 
 @app.post("/new/word",response_model=schemas.WordsCreate)
-def addword(word:schemas.WordsCreate,db:Session=Depends(get_db)):
+def addword(token: Annotated[str, Depends(oauth2_scheme)],word:schemas.WordsCreate,db:Session=Depends(get_db)):
     # needs protection
     word_check = crud.get_word(db,word.english_word,word.language_id)
     if word_check:
@@ -74,7 +74,7 @@ def addword(word:schemas.WordsCreate,db:Session=Depends(get_db)):
     return new_word
 
 @app.post("/new/wordlist",response_model=schemas.WordListOut)
-def addwordlist(wordlist: schemas.WordListBase,db:Session=Depends(get_db)):
+def addwordlist(token: Annotated[str, Depends(oauth2_scheme)],wordlist: schemas.WordListBase,db:Session=Depends(get_db)):
     # needs protection
     wordlist_check = crud.get_wordlist(db,wordlist.word)
     if wordlist_check:
@@ -83,7 +83,7 @@ def addwordlist(wordlist: schemas.WordListBase,db:Session=Depends(get_db)):
     return new_wordlist
 
 @app.post("/new/wordpic",response_model=schemas.WordPicOut)
-def addwordpic(wordpic:schemas.WordPictureBase,db:Session=Depends(get_db)):
+def addwordpic(token: Annotated[str, Depends(oauth2_scheme)],wordpic:schemas.WordPictureBase,db:Session=Depends(get_db)):
     # needs protection
     check_wordpic = crud.getwordpic(db,wordpic.wordlist_id)
     if check_wordpic:
@@ -102,7 +102,5 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db:Se
         raise HTTPException(status_code=400,detail='Incorrect credentials')
     if status:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = crud.create_access_token(
-            data={"sub": user.username}, expires_delta=access_token_expires
-        )
+        access_token = crud.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
         return Token(access_token=access_token, token_type="bearer")
