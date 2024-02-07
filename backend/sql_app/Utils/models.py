@@ -31,10 +31,11 @@ class User(Base):
     username = Column(String)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
+    # is_superuser = Column(Boolean, default=False)
     creation_date = Column(DateTime,default=datetime.now(),nullable=True)
     deletion_date = Column(DateTime, nullable=True)
     # relationships
-    user_lang_id = Column(Integer,ForeignKey("languages.id"),nullable=True)
+    user_lang_id = Column(Integer,ForeignKey("languages.id"),nullable=True) # will add this field via alembic migrations later. Not using it for now
     language_fam_id = Column(Integer,ForeignKey("language_families.id"),nullable=True) # not so necessary though
     
 class Words(Base):
@@ -59,12 +60,12 @@ class WordList(Base):
     creation_date = Column(DateTime, nullable=True)
     deletion_date = Column(DateTime, nullable=True)
 
-    picture = image_attachment('WordPicture')
+    picture = image_attachment('WordPicture',lazy='dynamic',uselist=False)
 
 class WordPicture(Base, Image):
     __tablename__ = 'wordpicture'
 
-    wordlist_id = Column(Integer,ForeignKey("wordlist.id"))
+    wordlist_id = Column(Integer,ForeignKey("wordlist.id"),primary_key=True)
     creation_date = Column(DateTime, default=datetime.now(), nullable=True)
     deletion_date = Column(DateTime, nullable=True,)
     
