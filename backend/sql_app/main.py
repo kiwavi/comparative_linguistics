@@ -138,3 +138,21 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db:Se
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = crud.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
         return Token(access_token=access_token, token_type="bearer")
+
+@app.get("/languages")
+async def fetch_languages(db:Session=Depends(get_db)):
+    languages = crud.fetch_languages(db)
+    print(languages)
+    return languages
+
+@app.get("/language-families")
+async def fetch_language_families(db:Session=Depends(get_db)):
+    language_families = crud.fetch_language_families(db)
+    print(language_families)
+    return language_families
+
+
+@app.get("/wordlist")
+async def fetch_wordlist(db:Session=Depends(get_db)):
+    words = crud.fetch_wordlist(db)
+    return words

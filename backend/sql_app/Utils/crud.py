@@ -145,3 +145,15 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 def verify_password(plain_text:str, hashed:str):
     name = bcrypt.checkpw(plain_text.encode('utf-8'),hashed)
     return name
+
+def fetch_languages(db:Session):
+    languages = db.query(models.Languages).all()
+    return languages
+
+def fetch_language_families(db:Session):
+    language_families = db.query(models.Language_Families).all()
+    return language_families
+
+def fetch_wordlist(db:Session):
+    wordlist = db.query(models.WordList).all()
+    return wordlist
