@@ -12,7 +12,7 @@ from datetime import timedelta, datetime, timezone
 from fastapi import Depends
 from jose import JWTError, jwt
 from decouple import config
-
+from fastapi import HTTPException, status
 
 SECRET_KEY = config('SECRET_KEY')
 ALGORITHM = config('ALGORITHM')
@@ -28,6 +28,9 @@ def ValidateMail(email):
 
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
+
+def get_user_by_name(db: Session, user_name: str):
+    return db.query(models.User).filter(models.User.username == user_name).first()
 
 def create_user(db: Session, user: schemas.UserCreate):
     # util for creating a user. email, username, password
@@ -123,7 +126,7 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(db:Session,token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -134,13 +137,10 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        user = get_user_by_name(db, username)
+        return user
     except JWTError:
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
-    if user is None:
-        raise credentials_exception
-    return user
 
 def verify_password(plain_text:str, hashed:str):
     name = bcrypt.checkpw(plain_text.encode('utf-8'),hashed)
@@ -157,3 +157,13 @@ def fetch_language_families(db:Session):
 def fetch_wordlist(db:Session):
     wordlist = db.query(models.WordList).all()
     return wordlist
+
+def user_language(db:Session,userid:int,userlang:int):
+    userlang = db.query(models.Languages).filter(models.Languages.id == userlang).first()
+    if userlang:
+        user = db.query(models.User).filter(models.User.id == userid).first()
+        user.user_lang_id = userlang.id
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user

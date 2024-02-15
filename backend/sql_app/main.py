@@ -20,7 +20,7 @@ models.Base.metadata.create_all(bind=engine)
 
 store = FileSystemStore(path='./Utils/images',base_url=os.getcwd() + '/Utils/images')
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 app = FastAPI()
 
@@ -156,7 +156,14 @@ async def fetch_wordlist(db:Session=Depends(get_db)):
     words = crud.fetch_wordlist(db)
     return words
 
-@app.put("/update-language/:userid")
-async def update_user_language(user,db:Session=Depends(get_db)):
-    # updates the language associated with a user. 
-    return None
+@app.put("/update-language/{userid}/{languageid}",response_model=schemas.UserOut)
+async def update_user_language(token: Annotated[str, Depends(oauth2_scheme)],userid:int,languageid:int,db:Session=Depends(get_db)):
+    # updates the language associated with a user.
+    user = crud.get_user(db,userid)    
+    # ensure that the user making this request is the logged in user
+    current_user = await crud.get_current_user(db,token)
+    if current_user.id == userid:
+        user = crud.user_language(db,userid,languageid)
+        return user
+    else:
+        raise HTTPException(status_code=400,detail='You have no permission to update this user\'s language')
