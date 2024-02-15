@@ -70,7 +70,6 @@ class WordListBase(BaseModel):
     # picture: Optional[Annotated[bytes, File()]] = None
 
 class WordListOut(WordListBase):
-    # creating wordlist
     id: int
 
 class WordPictureBase(BaseModel):

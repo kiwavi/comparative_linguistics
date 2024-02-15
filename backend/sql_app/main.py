@@ -6,7 +6,7 @@ from Utils.database import SessionLocal, engine
 import json
 from fastapi_storages import FileSystemStorage
 from fastapi_storages.integrations.sqlalchemy import FileType
-from typing import Optional, Union, Annotated
+from typing import Optional, Union, Annotated, List
 from wand.image import Image
 import base64
 from sqlalchemy_imageattach.context import store_context
@@ -145,14 +145,18 @@ async def fetch_languages(db:Session=Depends(get_db)):
     print(languages)
     return languages
 
-@app.get("/language-families")
+@app.get("/language-families",response_model=List[schemas.LanguageFamilyOut])
 async def fetch_language_families(db:Session=Depends(get_db)):
     language_families = crud.fetch_language_families(db)
     print(language_families)
     return language_families
 
-
-@app.get("/wordlist")
+@app.get("/wordlist",response_model=List[schemas.WordListOut])
 async def fetch_wordlist(db:Session=Depends(get_db)):
     words = crud.fetch_wordlist(db)
     return words
+
+@app.put("/update-language/:userid")
+async def update_user_language(user,db:Session=Depends(get_db)):
+    # updates the language associated with a user. 
+    return None
