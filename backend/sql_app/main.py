@@ -167,3 +167,4 @@ async def update_user_language(token: Annotated[str, Depends(oauth2_scheme)],use
         return user
     else:
         raise HTTPException(status_code=400,detail='You have no permission to update this user\'s language')
+
