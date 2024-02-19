@@ -37,6 +37,8 @@ class User(Base):
     # relationships
     user_lang_id = Column(Integer,ForeignKey("languages.id"),nullable=True) # will add this field via alembic migrations later. Not using it for now
     language_fam_id = Column(Integer,ForeignKey("language_families.id"),nullable=True) # not so necessary though
+
+    words = relationship("Words", back_populates='user')
     
 class Words(Base):
     __tablename__ = 'words'
@@ -51,6 +53,7 @@ class Words(Base):
     creation_date = Column(DateTime, default=datetime.now(), nullable=True)
     deletion_date = Column(DateTime, nullable=True,)
 
+    user = relationship("User",back_populates='words')
     
 class WordList(Base):
     __tablename__ = 'wordlist'

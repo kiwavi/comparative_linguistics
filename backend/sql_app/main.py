@@ -162,9 +162,15 @@ async def update_user_language(token: Annotated[str, Depends(oauth2_scheme)],use
     user = crud.get_user(db,userid)    
     # ensure that the user making this request is the logged in user
     current_user = await crud.get_current_user(db,token)
-    if current_user.id == userid:
-        user = crud.user_language(db,userid,languageid)
-        return user
-    else:
+    if not current_user:
+        raise HTTPException(status_code=400,detail='No such user')
+    if current_user.id != userid:
         raise HTTPException(status_code=400,detail='You have no permission to update this user\'s language')
+    user = crud.user_language(db,userid,languageid)
+    return user
 
+@app.get("/search/{word}")
+async def search_words(word:str,language: Union[int, None] = None,language_family:Union[int,None]=None,db:Session=Depends
+                       (get_db)):
+    result = crud.search_word(db,word,language,language_family)
+    return result

@@ -17,7 +17,11 @@ class WordsCreate(WordsBase):
     # creating words
     description: str
     user_id: int
-    
+
+class WordsOut(WordsBase):
+    language_fam_id: int
+    creation_date: datetime
+
 class UserBase(BaseModel):
     # common attributes for reading and creating users
     email: str
@@ -33,6 +37,7 @@ class UserCreate(UserBase):
 class UserOut(UserBase):
     id: int
     creation_date: datetime
+    user_lang_id: int
 
 class LanguageBase(BaseModel):
     # common attributes for reading and creating languages    

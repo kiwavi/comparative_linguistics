@@ -7,7 +7,7 @@ from email_validator import validate_email, EmailNotValidError
 
 from . import models, schemas
 from fastapi.security import OAuth2PasswordBearer
-from typing import Union, Annotated
+from typing import Union, Annotated, Optional
 from datetime import timedelta, datetime, timezone
 from fastapi import Depends
 from jose import JWTError, jwt
@@ -167,3 +167,8 @@ def user_language(db:Session,userid:int,userlang:int):
         db.commit()
         db.refresh(user)
         return user
+
+def search_word(db:Session,word:str,language: Optional[int]=None, language_family: Optional[int]=None):    
+    # return answers to queries
+    word = db.query(models.Words).filter(models.Words.english_word == word,models.Words.language_id == language,models.Words.language_fam_id == language_family).all()
+    return word
