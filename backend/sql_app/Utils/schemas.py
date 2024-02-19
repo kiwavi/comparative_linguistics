@@ -11,7 +11,7 @@ class WordsBase(BaseModel):
     # common attributes for reading and creating words    
     english_word: str
     language_word_equivalent: str
-    language_id: int
+    language_id: Optional[int] = None
 
 class WordsCreate(WordsBase):
     # creating words
@@ -19,7 +19,7 @@ class WordsCreate(WordsBase):
     user_id: int
 
 class WordsOut(WordsBase):
-    language_fam_id: int
+    language_fam_id: Optional[int] = None
     creation_date: datetime
 
 class UserBase(BaseModel):
