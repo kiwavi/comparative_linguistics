@@ -13,6 +13,7 @@ from fastapi import Depends
 from jose import JWTError, jwt
 from decouple import config
 from fastapi import HTTPException, status
+from sqlalchemy import or_
 
 SECRET_KEY = config('SECRET_KEY')
 ALGORITHM = config('ALGORITHM')
@@ -170,5 +171,5 @@ def user_language(db:Session,userid:int,userlang:int):
 
 def search_word(db:Session,word:str,language: Optional[int]=None, language_family: Optional[int]=None):    
     # return answers to queries
-    word = db.query(models.Words).filter(models.Words.english_word == word,models.Words.language_id == language,models.Words.language_fam_id == language_family).all()
+    word = db.query(models.Words).filter(models.Words.english_word == word, or_(models.Words.language_id == language,models.Words.language_id is not None), or_(models.Words.language_fam_id == language_family,models.Words.language_fam_id is not None)).all()
     return word
