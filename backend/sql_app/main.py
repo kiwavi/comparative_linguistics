@@ -72,6 +72,7 @@ def addword(token: Annotated[str, Depends(oauth2_scheme)],word:schemas.WordsCrea
     # needs protection
     word_check = crud.get_word(db,word.english_word,word.language_id)
     if word_check:
+        print(word_check)
         raise HTTPException(status_code=400,detail='The word entered already exists')
     new_word = crud.create_word(db,word)
     return new_word

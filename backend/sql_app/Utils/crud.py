@@ -78,9 +78,7 @@ def create_language(db:Session,language:schemas.LanguageCreate):
 
 def get_word(db:Session,name:str,language_id:int):
     # checks if there exists a word for that language 
-    return db.query(models.Words).filter(models.Words.english_word == name
-                                         and models.Words.language_id == language_id 
-                                         ).first()
+    return db.query(models.Words).filter(models.Words.english_word == name,models.Words.language_id == language_id).first()
 
 def create_word(db:Session,word:schemas.WordsCreate):
     new_word = models.Words(english_word=word.english_word,language_word_equivalent=
