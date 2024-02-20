@@ -172,5 +172,5 @@ async def update_user_language(token: Annotated[str, Depends(oauth2_scheme)],use
 @app.get("/search/{word}",response_model=List[schemas.WordsOut])
 async def search_words(word:str,language: Union[int, None] = None,language_family:Union[int,None]=None,db:Session=Depends
                        (get_db)):
-    result = crud.search_word(db,word,language,language_family)
+    result = crud.search_word(db,word,language,language_family)    
     return result
