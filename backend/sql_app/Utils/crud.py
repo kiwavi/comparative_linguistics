@@ -169,5 +169,8 @@ def user_language(db:Session,userid:int,userlang:int):
 
 def search_word(db:Session,word:str,language: Optional[int]=None, language_family: Optional[int]=None):    
     # return answers to queries
-    word = db.query(models.Words).filter(models.Words.english_word == word, or_(models.Words.language_id == language,models.Words.language_id is not None, models.Words.language_id is None), or_(models.Words.language_fam_id == language_family,models.Words.language_fam_id is not None,models.Words.language_fam_id is None)).all()
+    print(language)
+    print(language_family)
+    print(word)
+    word = db.query(models.Words).filter(models.Words.english_word == word,models.Words.language_id == language, models.Words.language_fam_id == language_family).all()
     return word
