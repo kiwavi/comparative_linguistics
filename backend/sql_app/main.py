@@ -6,7 +6,7 @@ from Utils.database import SessionLocal, engine
 import json
 from fastapi_storages import FileSystemStorage
 from fastapi_storages.integrations.sqlalchemy import FileType
-from typing import Optional, Union, Annotated
+from typing import Optional, Union, Annotated, List
 from wand.image import Image
 import base64
 from sqlalchemy_imageattach.context import store_context
@@ -20,7 +20,7 @@ models.Base.metadata.create_all(bind=engine)
 
 store = FileSystemStore(path='./Utils/images',base_url=os.getcwd() + '/Utils/images')
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 app = FastAPI()
 
@@ -72,6 +72,7 @@ def addword(token: Annotated[str, Depends(oauth2_scheme)],word:schemas.WordsCrea
     # needs protection
     word_check = crud.get_word(db,word.english_word,word.language_id)
     if word_check:
+        print(word_check)
         raise HTTPException(status_code=400,detail='The word entered already exists')
     new_word = crud.create_word(db,word)
     return new_word
@@ -138,3 +139,39 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db:Se
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = crud.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
         return Token(access_token=access_token, token_type="bearer")
+
+@app.get("/languages")
+async def fetch_languages(db:Session=Depends(get_db)):
+    languages = crud.fetch_languages(db)
+    print(languages)
+    return languages
+
+@app.get("/language-families",response_model=List[schemas.LanguageFamilyOut])
+async def fetch_language_families(db:Session=Depends(get_db)):
+    language_families = crud.fetch_language_families(db)
+    print(language_families)
+    return language_families
+
+@app.get("/wordlist",response_model=List[schemas.WordListOut])
+async def fetch_wordlist(db:Session=Depends(get_db)):
+    words = crud.fetch_wordlist(db)
+    return words
+
+@app.put("/update-language/{userid}/{languageid}",response_model=schemas.UserOut)
+async def update_user_language(token: Annotated[str, Depends(oauth2_scheme)],userid:int,languageid:int,db:Session=Depends(get_db)):
+    # updates the language associated with a user.
+    user = crud.get_user(db,userid)    
+    # ensure that the user making this request is the logged in user
+    current_user = await crud.get_current_user(db,token)
+    if not current_user:
+        raise HTTPException(status_code=400,detail='No such user')
+    if current_user.id != userid:
+        raise HTTPException(status_code=400,detail='You have no permission to update this user\'s language')
+    user = crud.user_language(db,userid,languageid)
+    return user
+
+@app.get("/search/{word}",response_model=List[schemas.WordsOut])
+async def search_words(word:str,language: Union[int, None] = None,language_family:Union[int,None]=None,db:Session=Depends
+                       (get_db)):
+    result = crud.search_word(db,word,language,language_family)    
+    return result

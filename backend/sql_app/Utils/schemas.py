@@ -11,13 +11,17 @@ class WordsBase(BaseModel):
     # common attributes for reading and creating words    
     english_word: str
     language_word_equivalent: str
-    language_id: int
+    language_id: Optional[int] = None
 
 class WordsCreate(WordsBase):
     # creating words
     description: str
     user_id: int
-    
+
+class WordsOut(WordsBase):
+    language_fam_id: Optional[int] = None
+    creation_date: datetime
+
 class UserBase(BaseModel):
     # common attributes for reading and creating users
     email: str
@@ -33,6 +37,7 @@ class UserCreate(UserBase):
 class UserOut(UserBase):
     id: int
     creation_date: datetime
+    user_lang_id: int
 
 class LanguageBase(BaseModel):
     # common attributes for reading and creating languages    
@@ -70,7 +75,6 @@ class WordListBase(BaseModel):
     # picture: Optional[Annotated[bytes, File()]] = None
 
 class WordListOut(WordListBase):
-    # creating wordlist
     id: int
 
 class WordPictureBase(BaseModel):
