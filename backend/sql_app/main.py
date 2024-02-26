@@ -175,3 +175,10 @@ async def search_words(word:str,language: Union[int, None] = None,language_famil
                        (get_db)):
     result = crud.search_word(db,word,language,language_family)    
     return result
+
+@app.get("/user/entries",response_model=List[schemas.WordsOut])
+# get all entries made by a certain user
+async def get_my_words(token: Annotated[str, Depends(oauth2_scheme)],db:Session=Depends(get_db)):
+    current_user = await crud.get_current_user(db,token)
+    words = crud.get_user_words(db,current_user.id)
+    return words

@@ -176,3 +176,9 @@ def search_word(db:Session,word:str,language: Optional[int]=None, language_famil
     if language_family and not language:
         word = db.query(models.Words).filter(models.Words.english_word == word,models.Words.language_fam_id == language_family).all()
     return word
+
+
+def get_user_words(db:Session,user_id:int):
+    print(user_id)
+    words = db.query(models.Words).filter(models.Words.user_id==user_id).all()
+    return words
