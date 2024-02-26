@@ -26,3 +26,6 @@ Tables
 Words - (english_word, language_word_equivalent, language (relate to languages table), language_fam (relate to language families table), description, user)
 WordList - (word, image)
 
+
+signup, login, search, get wordlist
+add words, first update user language, then associate word entry with that user.

@@ -7,12 +7,13 @@ from email_validator import validate_email, EmailNotValidError
 
 from . import models, schemas
 from fastapi.security import OAuth2PasswordBearer
-from typing import Union, Annotated
+from typing import Union, Annotated, Optional
 from datetime import timedelta, datetime, timezone
 from fastapi import Depends
 from jose import JWTError, jwt
 from decouple import config
-
+from fastapi import HTTPException, status
+from sqlalchemy import or_
 
 SECRET_KEY = config('SECRET_KEY')
 ALGORITHM = config('ALGORITHM')
@@ -28,6 +29,9 @@ def ValidateMail(email):
 
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
+
+def get_user_by_name(db: Session, user_name: str):
+    return db.query(models.User).filter(models.User.username == user_name).first()
 
 def create_user(db: Session, user: schemas.UserCreate):
     # util for creating a user. email, username, password
@@ -74,9 +78,7 @@ def create_language(db:Session,language:schemas.LanguageCreate):
 
 def get_word(db:Session,name:str,language_id:int):
     # checks if there exists a word for that language 
-    return db.query(models.Words).filter(models.Words.english_word == name
-                                         and models.Words.language_id == language_id 
-                                         ).first()
+    return db.query(models.Words).filter(models.Words.english_word == name,models.Words.language_id == language_id).first()
 
 def create_word(db:Session,word:schemas.WordsCreate):
     new_word = models.Words(english_word=word.english_word,language_word_equivalent=
@@ -123,7 +125,7 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(db:Session,token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -134,14 +136,49 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        user = get_user_by_name(db, username)
+        return user
     except JWTError:
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
-    if user is None:
-        raise credentials_exception
-    return user
 
 def verify_password(plain_text:str, hashed:str):
     name = bcrypt.checkpw(plain_text.encode('utf-8'),hashed)
     return name
+
+def fetch_languages(db:Session):
+    languages = db.query(models.Languages).all()
+    return languages
+
+def fetch_language_families(db:Session):
+    language_families = db.query(models.Language_Families).all()
+    return language_families
+
+def fetch_wordlist(db:Session):
+    wordlist = db.query(models.WordList).all()
+    return wordlist
+
+def user_language(db:Session,userid:int,userlang:int):
+    userlang = db.query(models.Languages).filter(models.Languages.id == userlang).first()
+    if userlang:
+        user = db.query(models.User).filter(models.User.id == userid).first()
+        user.user_lang_id = userlang.id
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
+
+def search_word(db:Session,word:str,language: Optional[int]=None, language_family: Optional[int]=None):    
+    # return answers to queries
+    if language and language_family:
+        word = db.query(models.Words).filter(models.Words.english_word == word,models.Words.language_id == language, models.Words.language_fam_id == language_family).all()
+    if language and not language_family:
+        word = db.query(models.Words).filter(models.Words.english_word == word,models.Words.language_id == language).all()
+    if language_family and not language:
+        word = db.query(models.Words).filter(models.Words.english_word == word,models.Words.language_fam_id == language_family).all()
+    return word
+
+
+def get_user_words(db:Session,user_id:int):
+    print(user_id)
+    words = db.query(models.Words).filter(models.Words.user_id==user_id).all()
+    return words
